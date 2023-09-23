@@ -9,6 +9,8 @@ from App_Blog.forms import CommentForm
 
 # Create your views here.
 
+class MyBlogs(LoginRequiredMixin,TemplateView):
+    template_name='App_Blog/my_blogs.html'
 
 
 class CreateBlog(LoginRequiredMixin,CreateView):
@@ -67,7 +69,15 @@ def liked(request,pk):
 def unliked(request,pk):
     blog=Blog.objects.get(pk=pk)
     user=request.user
-    already_liked=Likes(blog=blog,user=user)
+    already_liked=Likes.objects.filter(blog=blog,user=user)
     already_liked.delete()
     return HttpResponseRedirect(reverse('App_Blog:blog_details',kwargs={'slug':blog.slug}))
+
+class UpdateBlog(LoginRequiredMixin,UpdateView):
+    model=Blog
+    fields=('blog_title','blog_content','blog_image',)
+    template_name='App_Blog/edit_blog.html'
+
+    def get_success_url(self,**kwargs):
+        return reverse_lazy('App_Blog:blog_details',kwargs={'slug':self.object.slug})
 

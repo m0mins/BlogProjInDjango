@@ -1,6 +1,28 @@
 {%extends 'base.html'%}
+{%load custom_filters%}
 {% load crispy_forms_tags %}
-{%block title_block%}{%endblock%}
+{%block title_block%}{{user}}{%endblock%}
 {%block body_block%}
+
+{% for blog in user.post_author.all%}
+
+<h3>{{blog.blog_title}}</h3>
+{{blog.publish_date}}
+
+<div class="row">
+
+    <div class="col-sm-4">
+        <img src="/media/{{blog.blog_image}}" width="100%">
+    </div>
+    <div class="col-sm-8">
+        <p>{{blog.blog_content|range_filter|linebreaks}}</p>
+        <a href="{% url 'App_Blog:blog_details' slug=blog.slug%}">Read More</a>
+    </div>
+</div>
+<a href="{%url 'App_Blog:edit_blog' pk=blog.pk%}">Edit</a>
+<hr>
+
+{%endfor%}
+
 
 {%endblock%}
