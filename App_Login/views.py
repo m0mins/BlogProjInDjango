@@ -5,6 +5,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from App_Login.forms import SignUpForm,UserProfileChange,ProfilePic
+from django.shortcuts import render, HttpResponseRedirect, redirect
 
 # Create your views here.
 
@@ -21,22 +22,25 @@ def sign_up(request):
     return render(request,'App_Login/signup.html',context=dict)
 
 def login_page(request):
-    form=AuthenticationForm()
-    if request.method=='POST':
-        form=AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            username=form.cleaned_data.get('username')
-            password=form.cleaned_data.get('password')
-            user=authenticate(username=username,password=password)
-            if user is not None:
-                login(request,user)
-                return HttpResponseRedirect(reverse('index'))
-    return render(request,'App_Login/login.html',context={'form':form})
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('App_Home:home'))
+    else:
+        form=AuthenticationForm()
+        if request.method=='POST':
+            form=AuthenticationForm(data=request.POST)
+            if form.is_valid():
+                username=form.cleaned_data.get('username')
+                password=form.cleaned_data.get('password')
+                user=authenticate(username=username,password=password)
+                if user is not None:
+                    login(request,user)
+                    return redirect("App_Home:home")
+        return render(request,'App_Login/login.html',context={'form':form})
 
 @login_required
 def logout_user(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return redirect("App_Home:home")
 
 @login_required
 def profile(request):
